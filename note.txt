@@ -1,0 +1,45 @@
+Source IP address
+
+Destination IP address
+
+Source port
+
+Destination port (typically 80 or 443)
+
+Protocol (TCP for HTTP)
+
+Timestamp
+
+HTTP method (GET)
+
+Request URI (path and query string)
+
+HTTP version (HTTP/1.0, HTTP/1.1)
+
+Host header (domain name)
+
+User-Agent (browser/device information)
+
+Accept headers (content types accepted)
+
+Referer (previous page)
+
+Cookies
+
+Connection type
+
+Any custom headers
+
+All key-value pairs from the URL query string
+
+TCP sequence numbers (for tracking connections)
+
+Packet length/size
+
+TTL values
+
+Ethernet frame information (MAC addresses)
+
+Timing information between packets
+
+SSL/TLS information if HTTPS (though decrypting would require private keys)

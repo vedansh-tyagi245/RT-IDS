@@ -1,0 +1,31 @@
+/* Resetting default css */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom CSS for a white grid overlay */
+.bg-grid-white {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.2) 2px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 2px, transparent 1px),
+    url('../public/Background-image.jpg');
+  /* Replace with your image */
+
+  background-size: 20px 20px, 20px 20px, cover;
+  /* Grid size and image size */
+
+  background-repeat: repeat, repeat, no-repeat;
+  /* Repeat grid, no-repeat for the image */
+  
+  background-position: top left, top left, center;
+  /* Position the layers */
+
+  background-blend-mode: overlay;
+  /* Blend the grid with the image */
+
+  height: 100vh;
+  /* Full viewport height */
+  width: 100vw;
+  /* Full viewport width */
+}
