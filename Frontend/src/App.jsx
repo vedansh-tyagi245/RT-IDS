@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Welcome from './home-components/Welcome'
-import UploadFile from './File-Upload-components/UploadFile' // Assuming you have an UploadFile component
+import HomePage from './home-components/HomePage'
 
 function App() {
   return (
@@ -9,10 +8,8 @@ function App() {
       <div className='m-0 p-0'>
         <Routes>
           {/* Default Route */}
-          <Route path="/" element={<Welcome />} />
+          <Route path="/" element={<HomePage />} />
 
-          {/* Route for /Uploadfile */}
-          <Route path="/Uploadfile" element={<UploadFile />} />
         </Routes>
       </div>
     </Router>
