@@ -2,14 +2,13 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
-def handle_requests():
-    if request.method == 'GET':
-        return 'Hello World'
-    elif request.method == 'POST':
-        return 'Tello World'
-    else:
-        return 'Method Not Allowed', 405
+@app.route('/', methods=['GET'])
+def get_handler():
+    return 'Hello World'
+
+@app.route('/', methods=['POST'])
+def post_handler():
+    return 'Tello World'
 
 # Run the app
 if __name__ == '__main__':
