@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import socket
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from pymongo import MongoClient
 import os
 
@@ -31,7 +32,7 @@ def extract_request_data(method):
     server_port = request.environ.get('SERVER_PORT')
 
     # Current timestamp
-    timestamp = datetime.now().isoformat()
+    timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
 
     # HTTP details
     http_version = request.environ.get('SERVER_PROTOCOL')
