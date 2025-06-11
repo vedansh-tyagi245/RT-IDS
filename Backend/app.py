@@ -65,13 +65,14 @@ def extract_request_data(method):
 def get_handler():
     data = extract_request_data("GET")
     collection.insert_one(data)  # Save to MongoDB
-    return jsonify(data), 200
+    return jsonify({"status": "success"}), 200
 
 @app.route('/', methods=['POST'])
 def post_handler():
     data = extract_request_data("POST")
     collection.insert_one(data)  # Save to MongoDB
-    return jsonify(data), 200
+    return jsonify({"status": "success"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
