@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import socket
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -22,16 +23,29 @@ def get_handler():
     source_port = request.environ.get('REMOTE_PORT')
     server_port = request.environ.get('SERVER_PORT')
 
+    # Current timestamp
+    timestamp = datetime.now().isoformat()
+
+    # http version
+    http_version = request.environ.get('SERVER_PROTOCOL')  # e.g., "HTTP/1.1"
+
     return jsonify({
         "message": f"Hello World from {client_ip}",
         "destination_ip": server_ip,
         "source_port": source_port,
-        "server_port": server_port
+        "server_port": server_port,
+        "timestamp": timestamp,
+        "method":"GET",
+        "http_version":http_version,
     }), 200
 
 @app.route('/', methods=['POST'])
 def post_handler():
-    return jsonify({"message": "Tello World"}), 200
+    timestamp = datetime.now().isoformat()
+    return jsonify({
+        "message": "Tello World",
+        "timestamp": timestamp
+    }), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
