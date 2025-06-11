@@ -32,6 +32,9 @@ def get_handler():
     # host or domain name
     host_header = request.headers.get("Host")
 
+    # getting user agent
+    user_agent = request.headers.get("User-Agent")
+
     return jsonify({
         "message": f"Hello World from {client_ip}",
         "destination_ip": server_ip,
@@ -40,7 +43,8 @@ def get_handler():
         "timestamp": timestamp,
         "method":"GET",
         "http_version":http_version,
-        "host_name":host_header
+        "host_name":host_header,
+        "user_agent":user_agent,
     }), 200
 
 @app.route('/', methods=['POST'])
