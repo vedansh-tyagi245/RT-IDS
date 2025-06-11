@@ -24,13 +24,13 @@ Accept headers (content types accepted)
 
 Referer (previous page)
 
-Cookies
+Cookies - we will send cookie and store number of attempts in last 1 hour
 
 Connection type
 
 Any custom headers
 
-All key-value pairs from the URL query string
+All key-value pairs from the URL query string - left
 
 TCP sequence numbers (for tracking connections)
 

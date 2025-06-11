@@ -41,6 +41,16 @@ def get_handler():
     # getting referer (previous page)
     referer = request.headers.get("Referer")
 
+    # getting cookies
+    cookies = request.cookies
+
+    # Get the connection type
+    connection_type = request.headers.get("Connection")
+
+    # Get the approx packet size
+    content_length = request.content_length
+    approx_size = len(str(request.headers)) + (request.content_length or 0)
+
     return jsonify({
         "message": f"Hello World from {client_ip}",
         "destination_ip": server_ip,
@@ -53,6 +63,8 @@ def get_handler():
         "user_agent":user_agent,
         "accept_header":accept_header,
         "referer":referer,
+        "cookies":cookies,
+        "connection_type": connection_type,
     }), 200
 
 @app.route('/', methods=['POST'])
