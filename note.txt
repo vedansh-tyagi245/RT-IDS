@@ -43,3 +43,6 @@ Ethernet frame information (MAC addresses)
 Timing information between packets
 
 SSL/TLS information if HTTPS (though decrypting would require private keys)
+
+
+venv\Scripts\activate
