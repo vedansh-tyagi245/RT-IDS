@@ -29,6 +29,9 @@ def get_handler():
     # http version
     http_version = request.environ.get('SERVER_PROTOCOL')  # e.g., "HTTP/1.1"
 
+    # host or domain name
+    host_header = request.headers.get("Host")
+
     return jsonify({
         "message": f"Hello World from {client_ip}",
         "destination_ip": server_ip,
@@ -37,6 +40,7 @@ def get_handler():
         "timestamp": timestamp,
         "method":"GET",
         "http_version":http_version,
+        "host_name":host_header
     }), 200
 
 @app.route('/', methods=['POST'])
