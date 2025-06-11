@@ -35,6 +35,12 @@ def get_handler():
     # getting user agent
     user_agent = request.headers.get("User-Agent")
 
+    # getting accept_header
+    accept_header = request.headers.get("Accept")
+
+    # getting referer (previous page)
+    referer = request.headers.get("Referer")
+
     return jsonify({
         "message": f"Hello World from {client_ip}",
         "destination_ip": server_ip,
@@ -45,6 +51,8 @@ def get_handler():
         "http_version":http_version,
         "host_name":host_header,
         "user_agent":user_agent,
+        "accept_header":accept_header,
+        "referer":referer,
     }), 200
 
 @app.route('/', methods=['POST'])
