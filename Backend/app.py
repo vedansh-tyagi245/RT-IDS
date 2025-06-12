@@ -61,6 +61,11 @@ def extract_request_data(method):
 @app.route('/', methods=['GET'])
 def get_handler():
     data = extract_request_data("GET")
+
+    # Check if client_ip is blocked
+    if blocked_ips_collection.find_one({"ip": data["client_ip"]}):
+        return jsonify({"error": "Access denied. Your IP is blocked."}), 403
+
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
 
@@ -68,6 +73,11 @@ def get_handler():
 @app.route('/', methods=['POST'])
 def post_handler():
     data = extract_request_data("POST")
+
+    # Check if client_ip is blocked
+    if blocked_ips_collection.find_one({"ip": data["client_ip"]}):
+        return jsonify({"error": "Access denied. Your IP is blocked."}), 403
+
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
 
