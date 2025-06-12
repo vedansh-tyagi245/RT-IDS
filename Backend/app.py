@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import socket
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from pymongo import MongoClient
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -16,12 +14,14 @@ client = MongoClient(MONGO_URI)
 db = client['RT_IDS_DB']
 requests_collection = db['requests_log']
 blocked_ips_collection = db['blocked_ips']
+logs = db['logs']
 
 
 def extract_request_data(method):
-    timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+    timestamp = datetime.now(ZoneInfo("Asia/Kolkata"))
+    iso_timestamp = timestamp.isoformat()
 
-    # --- Filter 1: Blocked IP Check ---
+    # --- Extract IP Address (Early) ---
     x_forwarded_for = request.headers.get('X-Forwarded-For')
     if x_forwarded_for:
         ip_list = [ip.strip() for ip in x_forwarded_for.split(',')]
@@ -29,27 +29,42 @@ def extract_request_data(method):
     else:
         return {"status": False, "message": "Your request failed as we are unable to detect your IP"}
 
-    if blocked_ips_collection.find_one({"ip": client_ip}):
-        return {"status": False, "message": "Access denied. Your IP is blocked.", "blocked_ip": client_ip}
-
-    # --- Filter 2: Referer Check ---
+    # --- Filter 1: Referer Check ---
     referer = request.headers.get("referer")
     if referer != "https://rt-ids.vercel.app/":
-        blocked_ips_collection.insert_one({"ip": client_ip})
+        blocked_ips_collection.insert_one({"ip": client_ip, "reason": "Invalid Referer", "timestamp": timestamp})
+        logs.insert_one({
+            "message": f"{iso_timestamp}: {client_ip} blocked due to wrong referer - {referer}",
+            "ip": client_ip,
+            "referer": referer,
+            "reason": "Invalid Referer",
+            "timestamp": timestamp
+        })
         return {
             "status": False,
             "message": f"IP blocked due to wrong referer: {referer}",
             "blocked_ip": client_ip
         }
 
+    # --- Filter 2: Blocked IP Check ---
+    if blocked_ips_collection.find_one({"ip": client_ip}):
+        return {"status": False, "message": "Access denied. Your IP is blocked.", "blocked_ip": client_ip}
+
     # --- Filter 3: Rate Limiting ---
-    one_minute_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(minutes=1)
+    one_minute_ago = timestamp - timedelta(minutes=1)
     request_count = requests_collection.count_documents({
         "client_ip": client_ip,
         "timestamp": {"$gte": one_minute_ago.isoformat()}
     })
+
     if request_count >= 20:
-        blocked_ips_collection.insert_one({"ip": client_ip})
+        blocked_ips_collection.insert_one({"ip": client_ip, "reason": "Rate Limit Exceeded", "timestamp": timestamp})
+        logs.insert_one({
+            "message": f"{iso_timestamp}: {client_ip} blocked due to exceeding rate limit - {referer}",
+            "ip": client_ip,
+            "reason": "Rate Limit Exceeded",
+            "timestamp": timestamp
+        })
         return {
             "status": False,
             "message": f"IP {client_ip} blocked for exceeding 20 requests per minute",
@@ -75,7 +90,7 @@ def extract_request_data(method):
         "destination_ip": server_ip,
         "source_port": source_port,
         "server_port": server_port,
-        "timestamp": timestamp,
+        "timestamp": iso_timestamp,
         "method": method,
         "http_version": http_version,
         "host_name": host_header,
@@ -91,10 +106,8 @@ def extract_request_data(method):
 @app.route('/', methods=['GET'])
 def get_handler():
     data = extract_request_data("GET")
-
     if data.get("status") is False:
         return jsonify(data), 403
-
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
 
@@ -102,13 +115,10 @@ def get_handler():
 @app.route('/', methods=['POST'])
 def post_handler():
     data = extract_request_data("POST")
-
     if data.get("status") is False:
         return jsonify(data), 403
-
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
-
 
 
 @app.route('/blocked-ips', methods=['GET'])
