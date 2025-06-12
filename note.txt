@@ -1,3 +1,24 @@
 venv\Scripts\activate
 
 pip freeze > requirements.txt
+
+- Addition of captcha
+- create a blocked_ip collection in mongodb atlas- get, post and delete api for it
+- create a functionality to dont process the blocked IP
+
+I have 
+
+client IP
+destination IP
+source port
+destination port
+timestamp
+method
+http version
+host name
+user agent
+accept header
+referer
+cookies
+connection type 
+approx packet size

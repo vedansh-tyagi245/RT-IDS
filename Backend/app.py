@@ -13,10 +13,11 @@ CORS(app)
 MONGO_URI = "mongodb+srv://vedanshtyagibrd19:x0RqL4V6Q1AT7q5M@cluster0.ihr7fdj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(MONGO_URI)
 db = client['RT_IDS_DB']
-collection = db['requests_log']
+requests_collection = db['requests_log']
+blocked_ips_collection = db['blocked_ips']
+
 
 def extract_request_data(method):
-    # Get client IP from X-Forwarded-For
     x_forwarded_for = request.headers.get('X-Forwarded-For')
     if x_forwarded_for:
         ip_list = [ip.strip() for ip in x_forwarded_for.split(',')]
@@ -24,18 +25,12 @@ def extract_request_data(method):
     else:
         client_ip = request.remote_addr
 
-    # Get destination IP (server IP)
     server_ip = socket.gethostbyname(socket.gethostname())
-
-    # Get source and destination ports
     source_port = request.environ.get('REMOTE_PORT')
     server_port = request.environ.get('SERVER_PORT')
-
-    # Current timestamp
     timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
-
-    # HTTP details
     http_version = request.environ.get('SERVER_PROTOCOL')
+
     host_header = request.headers.get("Host")
     user_agent = request.headers.get("User-Agent")
     accept_header = request.headers.get("Accept")
@@ -62,17 +57,52 @@ def extract_request_data(method):
         "approx_packet_size": approx_size
     }
 
+
 @app.route('/', methods=['GET'])
 def get_handler():
     data = extract_request_data("GET")
-    collection.insert_one(data)  # Save to MongoDB
+    requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
+
 
 @app.route('/', methods=['POST'])
 def post_handler():
     data = extract_request_data("POST")
-    collection.insert_one(data)  # Save to MongoDB
+    requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
+
+
+# -------------------------------
+# Blocked IPs Management Endpoints
+# -------------------------------
+
+@app.route('/block-ip', methods=['POST'])
+def block_ip():
+    ip_data = request.get_json()
+    ip = ip_data.get("ip")
+    if not ip:
+        return jsonify({"error": "IP is required"}), 400
+
+    # Avoid duplicates
+    if blocked_ips_collection.find_one({"ip": ip}):
+        return jsonify({"message": "IP already blocked"}), 200
+
+    blocked_ips_collection.insert_one({"ip": ip})
+    return jsonify({"message": f"IP {ip} blocked successfully"}), 201
+
+
+@app.route('/blocked-ips', methods=['GET'])
+def get_blocked_ips():
+    ips = list(blocked_ips_collection.find({}, {"_id": 0}))
+    return jsonify(ips), 200
+
+
+@app.route('/block-ip/<ip>', methods=['DELETE'])
+def unblock_ip(ip):
+    result = blocked_ips_collection.delete_one({"ip": ip})
+    if result.deleted_count == 0:
+        return jsonify({"error": "IP not found"}), 404
+    return jsonify({"message": f"IP {ip} unblocked successfully"}), 200
 
 
 if __name__ == '__main__':
