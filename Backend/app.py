@@ -41,7 +41,7 @@ def extract_request_data(method):
     approx_size = len(str(request.headers)) + (content_length or 0)
 
     return {
-        "client_ip": client_ip,
+        "client_ip": x_forwarded_for,
         "destination_ip": server_ip,
         "source_port": source_port,
         "server_port": server_port,
