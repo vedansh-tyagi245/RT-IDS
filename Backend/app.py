@@ -21,28 +21,29 @@ blocked_ips_collection = db['blocked_ips']
 def extract_request_data(method):
     timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
 
-    # Filter 1
+    # --- Filter 1: Blocked IP Check ---
     x_forwarded_for = request.headers.get('X-Forwarded-For')
     if x_forwarded_for:
         ip_list = [ip.strip() for ip in x_forwarded_for.split(',')]
         client_ip = ip_list[-3] if len(ip_list) >= 3 else ip_list[0]
     else:
-        return {"status":False, "message":"Your request failed as we are unable to detect your IP"}
+        return {"status": False, "message": "Your request failed as we are unable to detect your IP"}
 
-    # Filter 2
+    if blocked_ips_collection.find_one({"ip": client_ip}):
+        return {"status": False, "message": "Access denied. Your IP is blocked.", "blocked_ip": client_ip}
+
+    # --- Filter 2: Referer Check ---
     referer = request.headers.get("referer")
     if referer != "https://rt-ids.vercel.app/":
-        # Block the IP
         blocked_ips_collection.insert_one({"ip": client_ip})
         return {
             "status": False,
             "message": f"IP blocked due to wrong referer: {referer}",
             "blocked_ip": client_ip
         }
-    
+
     # --- Filter 3: Rate Limiting ---
     one_minute_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(minutes=1)
-    # Count requests from this IP in the last 1 minute
     request_count = requests_collection.count_documents({
         "client_ip": client_ip,
         "timestamp": {"$gte": one_minute_ago.isoformat()}
@@ -55,7 +56,7 @@ def extract_request_data(method):
             "blocked_ip": client_ip
         }
 
-
+    # --- If Passed All Filters, Gather Request Metadata ---
     server_ip = socket.gethostbyname(socket.gethostname())
     source_port = request.environ.get('REMOTE_PORT')
     server_port = request.environ.get('SERVER_PORT')
@@ -91,13 +92,8 @@ def extract_request_data(method):
 def get_handler():
     data = extract_request_data("GET")
 
-    # If request was rejected by filters (status: False), return early
     if data.get("status") is False:
-        return jsonify(data), 400  # or 403 depending on the case
-
-    # Check if client_ip is blocked
-    if blocked_ips_collection.find_one({"ip": data["client_ip"]}):
-        return jsonify({"error": "Access denied. Your IP is blocked."}), 403
+        return jsonify(data), 403
 
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
@@ -107,35 +103,12 @@ def get_handler():
 def post_handler():
     data = extract_request_data("POST")
 
-    # If request was rejected by filters (status: False), return early
     if data.get("status") is False:
-        return jsonify(data), 400  # or 403 depending on the case
-
-    # Check if client_ip is blocked
-    if blocked_ips_collection.find_one({"ip": data["client_ip"]}):
-        return jsonify({"error": "Access denied. Your IP is blocked."}), 403
+        return jsonify(data), 403
 
     requests_collection.insert_one(data)
     return jsonify({"status": "success"}), 200
 
-
-# -------------------------------
-# Blocked IPs Management Endpoints
-# -------------------------------
-
-@app.route('/block-ip', methods=['POST'])
-def block_ip():
-    ip_data = request.get_json()
-    ip = ip_data.get("ip")
-    if not ip:
-        return jsonify({"error": "IP is required"}), 400
-
-    # Avoid duplicates
-    if blocked_ips_collection.find_one({"ip": ip}):
-        return jsonify({"message": "IP already blocked"}), 200
-
-    blocked_ips_collection.insert_one({"ip": ip})
-    return jsonify({"message": f"IP {ip} blocked successfully"}), 201
 
 
 @app.route('/blocked-ips', methods=['GET'])
