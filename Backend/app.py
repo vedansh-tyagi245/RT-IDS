@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import socket
 from datetime import datetime
+from datetime import timedelta
 from zoneinfo import ZoneInfo
 from pymongo import MongoClient
 import os
@@ -18,22 +19,51 @@ blocked_ips_collection = db['blocked_ips']
 
 
 def extract_request_data(method):
+    timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+
+    # Filter 1
     x_forwarded_for = request.headers.get('X-Forwarded-For')
     if x_forwarded_for:
         ip_list = [ip.strip() for ip in x_forwarded_for.split(',')]
         client_ip = ip_list[-3] if len(ip_list) >= 3 else ip_list[0]
+    else:
+        return {"status":False, "message":"Your request failed as we are unable to detect your IP"}
+
+    # Filter 2
+    referer = request.headers.get("Referer")
+    if referer != "https://rt-ids.vercel.app/":
+        # Block the IP
+        blocked_ips_collection.insert_one({"ip": client_ip})
+        return {
+            "status": False,
+            "message": f"IP blocked due to wrong referer: {referer}",
+            "blocked_ip": client_ip
+        }
+    
+    # --- Filter 3: Rate Limiting ---
+    one_minute_ago = datetime.now(ZoneInfo("Asia/Kolkata")) - timedelta(minutes=1)
+    # Count requests from this IP in the last 1 minute
+    request_count = requests_collection.count_documents({
+        "client_ip": client_ip,
+        "timestamp": {"$gte": one_minute_ago.isoformat()}
+    })
+    if request_count >= 20:
+        blocked_ips_collection.insert_one({"ip": client_ip})
+        return {
+            "status": False,
+            "message": f"IP {client_ip} blocked for exceeding 20 requests per minute",
+            "blocked_ip": client_ip
+        }
 
 
     server_ip = socket.gethostbyname(socket.gethostname())
     source_port = request.environ.get('REMOTE_PORT')
     server_port = request.environ.get('SERVER_PORT')
-    timestamp = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
     http_version = request.environ.get('SERVER_PROTOCOL')
 
     host_header = request.headers.get("Host")
     user_agent = request.headers.get("User-Agent")
     accept_header = request.headers.get("Accept")
-    referer = request.headers.get("Referer")
     cookies = request.cookies
     connection_type = request.headers.get("Connection")
     content_length = request.content_length
