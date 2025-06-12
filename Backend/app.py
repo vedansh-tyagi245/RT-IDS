@@ -22,8 +22,7 @@ def extract_request_data(method):
     if x_forwarded_for:
         ip_list = [ip.strip() for ip in x_forwarded_for.split(',')]
         client_ip = ip_list[-3] if len(ip_list) >= 3 else ip_list[0]
-    else:
-        client_ip = request.remote_addr
+
 
     server_ip = socket.gethostbyname(socket.gethostname())
     source_port = request.environ.get('REMOTE_PORT')
@@ -41,7 +40,7 @@ def extract_request_data(method):
     approx_size = len(str(request.headers)) + (content_length or 0)
 
     return {
-        "client_ip": x_forwarded_for,
+        "client_ip": client_ip,
         "destination_ip": server_ip,
         "source_port": source_port,
         "server_port": server_port,
