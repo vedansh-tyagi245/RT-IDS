@@ -30,7 +30,7 @@ def extract_request_data(method):
         return {"status":False, "message":"Your request failed as we are unable to detect your IP"}
 
     # Filter 2
-    referer = request.headers.get("Referer")
+    referer = request.headers.get("referer")
     if referer != "https://rt-ids.vercel.app/":
         # Block the IP
         blocked_ips_collection.insert_one({"ip": client_ip})
