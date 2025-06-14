@@ -29,7 +29,7 @@ flowchart TD
     Frontend -->|REST API Request| Backend[Render Backend APIs]
     Backend --> AtlasDB[(MongoDB Atlas)]
 
-    Client(Operator) -->|APIs| LocalServer[Local Server]
+    Client(OperatorClient) -->|APIs| LocalServer[Local Server]
     LocalServer --> LocalDB[(Local MongoDB)]
     LocalServer --> AtlasDB[(MongoDB Atlas)]
 
