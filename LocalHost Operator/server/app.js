@@ -1,32 +1,33 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { errorMiddleware } from "./middlewares/error.js";
-import reservationRouter from "./routes/reservationRoute.js";
 import { dbConnection } from "./database/dbConnection.js";
+import { errorMiddleware } from "./middleware/error.js";
+import migrateRouter from "./routes/migrate.js";
+import requestLogRouter from "./routes/requestLog.js";
+import logRouter from "./routes/log.js"; // ✅ Import logs route
+import startWebSocket from "./services/websocket.js";
+
+dotenv.config();
 
 const app = express();
-dotenv.config({ path: "./config/config.env" });
 
-app.use(
-  cors({
-    // origin: [process.env.FRONTEND_URL], 
-    origin: "https://zeso-food-services-fkstg7gmr-vedansh-tyagis-projects.vercel.app", // this allows requests from any origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-  })
-);
+// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-app.use("/api/v1/reservation", reservationRouter);
-app.get("/", (req, res, next)=>{return res.status(200).json({
-  success: true,
-  message: "HELLO WORLD AGAIN"
-})})
+// Connect to both MongoDBs
+await dbConnection();
 
-dbConnection();
+// API Routes
+app.use("/api/migrate", migrateRouter);
+app.use("/api/requestlogs", requestLogRouter);
+app.use("/api/logs", logRouter); // ✅ Add logs route here
 
+// Error Handling Middleware
 app.use(errorMiddleware);
+
+// Start WebSocket Server
+startWebSocket();
 
 export default app;

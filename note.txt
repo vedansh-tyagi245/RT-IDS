@@ -3,26 +3,12 @@ venv\Scripts\activate
 pip freeze > requirements.txt
 
 - Addition of captcha
-- create a blocked_ip collection in mongodb atlas- get, post and delete api for it
-- create a functionality to dont process the blocked IP
 
-filter 1 = 1 in 10 times our clientIP is detected as null.. we will not process that request further and stop it immediately
-Filter 2 = referer should be just "https://rt-ids.vercel.app/" 
-filter 3 = rate limiting - not more than 20 requests per minute
+Content on dashboard
+- blocked IP table: IP, reason, timestamp
+- Top IP's making requests in last 1 hour, last 1 day, last 10 days
+- Geo location mapping
+- create a table for requests_logs where we can sort, filter, range on time
 
-I have 
 
-client IP
-destination IP
-source port
-destination port
-timestamp
-method
-http version
-host name
-user agent
-accept header
-referer
-cookies
-connection type 
-approx packet size
+
