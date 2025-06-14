@@ -29,7 +29,7 @@ flowchart TD
     Frontend -->|REST API Request| Backend[Backend APIs]
     Backend --> DB[(Database)]
     Backend --> WebSocket[WebSocket Service]
-    Local -->|APIs| LocalServer[Local Server]
+    LocalHost Operator -->|APIs| LocalServer[Local Server]
     LocalServer --> LocalDB[(Local DB)]
 ```
 
