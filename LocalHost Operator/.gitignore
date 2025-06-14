@@ -9,9 +9,11 @@ yarn-error.log*
 # Environment files
 .env
 config.env
+!env.example
 
 # OS-specific files
 .DS_Store
 
 # Build output
 dist/
+
