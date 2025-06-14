@@ -5,7 +5,7 @@ function HomePage() {
 
     const handleGetRequest = async () => {
         try {
-            const response = await fetch('https://rt-ids.onrender.com/', {
+            const response = await fetch('https://rt-ids-1.onrender.com', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ function HomePage() {
 
     const handlePostRequest = async () => {
         try {
-            const response = await fetch('https://rt-ids.onrender.com/', {
+            const response = await fetch('https://rt-ids-1.onrender.com/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
