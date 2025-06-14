@@ -27,7 +27,7 @@ A Real-Time Intrusion Detection System with a modular architecture for traffic m
 flowchart TD
     User -->|UI Interaction| Frontend[Frontend Interface]
     Frontend -->|REST API Request| Backend[Backend APIs]
-    Backend --> DB[(Database(MongoDB Atlas))]
+    Backend --> DB[(MongoDB Atlas)]
     Backend --> WebSocket[WebSocket Service]
     LocalHostOperator -->|APIs| LocalServer[Local Server]
     LocalServer --> LocalDB[(Local DB)]
