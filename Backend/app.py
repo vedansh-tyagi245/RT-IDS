@@ -4,12 +4,17 @@ import socket
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+
+# Load .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 # MongoDB Atlas Connection
-MONGO_URI = "mongodb+srv://vedanshtyagibrd19:x0RqL4V6Q1AT7q5M@cluster0.ihr7fdj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client['RT_IDS_DB']
 requests_collection = db['requests_log']
