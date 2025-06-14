@@ -21,7 +21,7 @@ const startWebSocket = () => {
                 console.error("❌ Error calling /api/migrate:", err.message);
                 ws.send("❌ Migration failed: " + err.message);
             }
-        }, 5 * 1000); // every 60 seconds
+        }, 10 * 1000); // every 60 seconds
 
 
     });
