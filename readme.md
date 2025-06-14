@@ -167,9 +167,9 @@ RT-IDS/
 
 ## 🔧 Customization
 
-* Modify `tailwind.config.js` or `vite.config.js` for frontend customization
-* Customize API logic in `controllers/` and `services/`
-* Extend models in `models/` for new data types
+* Can add a cloudfare CDN for more security
+* Can use scappy in aws, digital ocean
+* Can use captcha 
 
 ## 🛡️ License
 
