@@ -40,7 +40,7 @@ flowchart TD
 RT-IDS/
 ├── Backend/
 │   ├── .env.example
-│   ├── app.py             # entry point for render server, apply filter on requests and block IPs then store in mongodb atlas
+│   ├── app.py                 # Entry point for Render server; applies filters on requests, blocks IPs, and stores in MongoDB Atlas
 │   └── requirements.txt
 │
 ├── Frontend/
@@ -49,60 +49,77 @@ RT-IDS/
 │   ├── tailwind.config.js
 │   ├── vite.config.js
 │   └── src/
-│       ├── App.jsx
+│       ├── App.jsx               # Entry point for frontend of the website where traffic goes and interacts
 │       └── home-components/
-│           ├── HomePage.jsx
+│           ├── HomePage.jsx     # Contains GET and POST buttons to send requests to the Render server
 │           └── Navbar.jsx
 │
-└── LocalHost Operator/
+└── LocalHost Operator/          # Not meant for hosting, only for local monitoring and dashboards
     ├── client/
     │   ├── index.html
     │   ├── package.json
     │   └── src/
     │       ├── App.jsx
     │       ├── pages/
-    │       │   ├── Overview.jsx
-    │       │   └── BlockedIPTable.jsx
+    │       │   ├── Overview.jsx          # Renders Chart1 and Chart2 from components
+    │       │   └── BlockedIPTable.jsx    # Table showing all blocked IPs with reason and timestamp
     │       └── components/
-    │           ├── Chart1.jsx
-    │           ├── Chart2.jsx
+    │           ├── Chart1.jsx            # Shows number of requests in the last 24 hours
+    │           ├── Chart2.jsx            # Shows top 5 IPs in the last 1 hour, 1 day, and 10 days
     │           └── Navbar.jsx
     └── server/
+        ├── .env.example
         ├── app.js
-        ├── server.js
+        ├── server.js             # Entry point – run with `nodemon server.js`
+        ├── package.json
+        ├── package-lock.json
+        │
         ├── controllers/
+        │   ├── logController.js          # controller to fetch all logs from mongodb compass
+        │   ├── migrationController.js    # controller for migration of data from mongodb atlas to mongodb compass to free up cloud spaces
+        │   └── requestLogsController.js  # controller to fetch all requestLogs from mongodb compass
+        │
         ├── database/
+        │   └── dbConnection.js      # connect to both atlas as when as local database compass
+        │
         ├── middleware/
+        │   └── error.js
+        │
         ├── models/
-        ├── routes/
+        │   ├── BlockedIP.js
+        │   ├── Log.js
+        │   └── RequestLog.js
+        │
+        ├── routes/     # routes for all three controllers
+        │   ├── log.js
+        │   ├── migrate.js
+        │   └── requestLog.js
+        │
         └── services/
+            └── websocket.js    # websocket to fetch atlas requestsLogs(1.2 minutes and older) store them in compass and free atlas space
+```
+# 🛠️ Tech Stack Used
+
+## ⚙️ Backend (Render Hosted)
+* **Flask** – Handles incoming requests, applies rate limiting and blocking logic
+* **MongoDB Atlas** – Stores blocked IPs and request logs
+
+## 🎨 Frontend (Render Hosted)
+* **React** – UI library for building the main web interface
+* **Tailwind CSS** – Utility-first CSS framework for styling
+* **Vite** – Lightning-fast frontend build tool
+
+## 🖥️ LocalHost Operator (Dashboard System - Not Deployed)
+### 🧑‍💻 Client
+* **React** – For dashboard UI
+* **Tailwind CSS** – For styling components
+
+### 🖧 Server
+* **Node.js + Express.js** – REST API for dashboard
+* **MongoDB** – Stores logs, blocked IPs, and request analytics
 ```
 
-## ⚙️ Backend
-
-* `app.py`: Main FastAPI application for core backend
-* RESTful APIs for logs, requests, and data migration
-* Uses WebSocket for real-time communication
-
-## 🎨 Frontend
-
-* Built with React + Tailwind CSS
-* Vite as the build tool
-* Pages: Homepage, Navigation
-* Animated and responsive design elements
-
-## 🖥️ LocalHost Operator
-
-### Client
-
-* Custom React UI for local traffic and device management
-* Charts, tables, and operational controls
-
-### Server
-
-* Node.js/Express backend
-* MongoDB for data storage
-* Modular architecture with controllers, routes, and services
+---
 
 ## 🛠️ Requirements
 
