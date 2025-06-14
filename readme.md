@@ -26,7 +26,7 @@ A Real-Time Intrusion Detection System with a modular architecture for traffic m
 ```mermaid
 flowchart TD
     User -->|UI Interaction| Frontend[Frontend Interface]
-    Frontend -->|REST/WebSocket| Backend[Backend APIs]
+    Frontend -->|REST API Request| Backend[Backend APIs]
     Frontend -->|Local Network Ops| Local[LocalHost Operator]
     Backend --> DB[(Database)]
     Backend --> WebSocket[WebSocket Service]
