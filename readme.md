@@ -104,7 +104,7 @@ RT-IDS/
 * **Flask** – Handles incoming requests, applies rate limiting and blocking logic
 * **MongoDB Atlas** – Stores blocked IPs and request logs
 
-## 🎨 Frontend (Render Hosted)
+## 🎨 Frontend (Vercel Hosted)
 * **React** – UI library for building the main web interface
 * **Tailwind CSS** – Utility-first CSS framework for styling
 * **Vite** – Lightning-fast frontend build tool
@@ -117,23 +117,13 @@ RT-IDS/
 ### 🖧 Server
 * **Node.js + Express.js** – REST API for dashboard
 * **MongoDB** – Stores logs, blocked IPs, and request analytics
-```
-
----
-
-## 🛠️ Requirements
-
-* Python 3.8+
-* Node.js 16+
-* MongoDB
-* Git
 
 ## 📦 Installation
 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/RT-IDS.git
+   git clone https://github.com/vedanshtyagi1901/RT-IDS
    cd RT-IDS
    ```
 
@@ -141,30 +131,30 @@ RT-IDS/
 
    ```bash
    cd Backend
-   pip install -r requirements.txt
-   cp .env.example .env
+   install command: pip install -r requirements.txt
+   run command: python app.py
    # configure your environment variables
    ```
 
 3. **Frontend Setup**
 
    ```bash
-   cd ../Frontend
-   npm install
-   npm run dev
+   cd /Frontend
+   install command: npm install
+   run command: npm run dev
    ```
 
 4. **LocalHost Operator Setup**
 
    ```bash
-   cd ../LocalHost\ Operator/server
+   cd /LocalHost\ Operator/server
    npm install
    cp .env.example .env
-   node server.js
+   nodemon server.js
    ```
 
    ```bash
-   cd ../client
+   cd /client
    npm install
    npm run dev
    ```
